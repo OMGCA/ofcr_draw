@@ -27,8 +27,7 @@ public class DrawClient {
     private void createSession(String sessionName, int round, int playerCount) {
         DrawSession drawSession = new DrawSession(sessionName, round, playerCount);
         String serverIp = "127.0.0.1";
-        int serverPort = 16666;
-        sendSession(drawSession, serverIp, serverPort);
+        sendSession(drawSession, serverIp, MONITOR_PORT);
     }
 
     private void sendSession(DrawSession newSession, String serverIp, int serverPort) {
