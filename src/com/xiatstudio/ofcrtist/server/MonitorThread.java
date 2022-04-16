@@ -36,8 +36,6 @@ public class MonitorThread extends Thread {
 
     private static Socket socket;
 
-    private static DrawSessionManager drawSessionMgr = new DrawSessionManager();
-
     @Override
     public void run() {
         try {
@@ -49,9 +47,12 @@ public class MonitorThread extends Thread {
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 DrawSession newSession = (DrawSession) objectInputStream.readObject();
                 DrawPlayer requestedPlayer = (DrawPlayer) objectInputStream.readObject();
-                DrawSession currentSession = drawSessionMgr.handleRequest(newSession, requestedPlayer);
+                DrawSession currentSession = DrawServer.drawSessionMgr.handleRequest(newSession, requestedPlayer);
                 Thread.sleep(SERVER_SLEEP);
-                sendSessionToClient(socket.getInetAddress().toString().replace("/", ""), currentSession);
+                sendSessionToClient(socket.getInetAddress().toString().replace("/", ""),
+                    requestedPlayer.getPort(), currentSession);
+                Thread.sleep(SERVER_SLEEP);
+                SessionInfoThread.onSessionUpdate(currentSession, requestedPlayer.getName(), 0);
                 objectInputStream.close();
             }
         } catch (IOException e) {
@@ -64,10 +65,10 @@ public class MonitorThread extends Thread {
         }
     }
 
-    private void sendSessionToClient(String clientIp, DrawSession currentSession) {
+    private void sendSessionToClient(String clientIp, int clientPort, DrawSession currentSession) {
         try {
             Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(clientIp, CLIENT_PORT), CONNECT_TIMEOUT);
+            socket.connect(new InetSocketAddress(clientIp, clientPort), CONNECT_TIMEOUT);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.writeObject(currentSession);
             socket.shutdownOutput();

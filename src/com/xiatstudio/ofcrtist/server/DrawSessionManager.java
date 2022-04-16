@@ -14,9 +14,30 @@ import java.util.concurrent.ConcurrentMap;
  * DrawSessionManager class, it manages all session related operations in one server.
  */
 public class DrawSessionManager {
+    private static final Object LOCK = new Object();
+
+    private static DrawSessionManager sInstance;
+
     private static ConcurrentMap<Integer, DrawSession> drawSessionMap = new ConcurrentHashMap<>();
 
-    public DrawSessionManager() {
+    private DrawSessionManager() {
+    }
+
+    /**
+     * DrawSessionManager singleton
+     *
+     * @return DrawSessionManager singleton instance
+     */
+    public static DrawSessionManager getInstance() {
+        synchronized (LOCK) {
+            if (sInstance == null) {
+                synchronized (LOCK) {
+                    sInstance = new DrawSessionManager();
+                }
+                return sInstance;
+            }
+            return sInstance;
+        }
     }
 
     /**

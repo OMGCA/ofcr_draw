@@ -3,6 +3,7 @@
  */
 package com.xiatstudio.ofcrtist;
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,12 +141,19 @@ public class DrawSession implements Serializable {
      *
      * @return List of joined players
      */
-    public List<String> getPlayerList() {
+    public List<String> getPlayerStringList() {
         List<String> retList = new ArrayList<>();
         for (DrawPlayer player : this.playerList) {
             retList.add(player.getName());
         }
         return retList;
+    }
+
+    /**
+     *
+     */
+    public List<DrawPlayer> getPlayerList() {
+        return this.playerList;
     }
 
     /**
