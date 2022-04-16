@@ -24,19 +24,24 @@ import java.util.Scanner;
 public class DrawClient {
     private static DrawPlayer currentPlayer;
 
-    private static final int PORT = 16667;
+    private static int PORT = 0;
 
     private static final String TEST_SERVER = "127.0.0.1";
 
     private DrawSession currentSession;
+
+    private static DataThread dataThread;
 
     /**
      * Main entry of an OFCRtist client.
      */
     public DrawClient() {
         System.out.println("Welcome to OFCRtist!");
-        System.out.print("Enter your nickname: ");
         Scanner nameReader = new Scanner(System.in);
+        System.out.println("Running port: ");
+        PORT = nameReader.nextInt();
+
+        System.out.print("Enter your nickname: ");
         String name = nameReader.next();
         System.out.print("Do you want to create(1) or join a session(2)? ");
         int option = nameReader.nextInt();
@@ -54,11 +59,12 @@ public class DrawClient {
             int shareId = nameReader.nextInt();
             joinSession(shareId);
         }
-        return;
+        dataThread = new DataThread(PORT, currentSession);
+        dataThread.start();
     }
 
     private void createPlayer(String name) {
-        currentPlayer = new DrawPlayer(name, TEST_SERVER);
+        currentPlayer = new DrawPlayer(name, TEST_SERVER, PORT);
     }
 
     private void createSession(String sessionName, int round, int playerCount) {
@@ -77,7 +83,7 @@ public class DrawClient {
         }
         System.out.print("Successfully joined session " + currentSession.getSessionName());
         System.out.println(", you can share this session to others via " + currentSession.hashCode());
-        List<String> playerList = currentSession.getPlayerList();
+        List<String> playerList = currentSession.getPlayerStringList();
         System.out.println("Players in current session:");
         for (String playerName : playerList) {
             System.out.println(playerName);
@@ -91,9 +97,7 @@ public class DrawClient {
             outputStream.writeObject(newSession);
             outputStream.writeObject(this.currentPlayer);
             receiveSession();
-            socket.shutdownOutput();
             outputStream.close();
-            socket.close();
         } catch (IOException e) {
             System.out.println("Failed to send session information to server " + serverIp);
         }
@@ -108,10 +112,7 @@ public class DrawClient {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             currentSession = (DrawSession) objectInputStream.readObject();
 
-            socket.shutdownInput();
             objectInputStream.close();
-            socket.close();
-            receiveSocket.close();
         } catch (IOException e) {
             System.out.println("Failed to receive from server.");
             return;

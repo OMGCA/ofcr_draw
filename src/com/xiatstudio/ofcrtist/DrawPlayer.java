@@ -15,15 +15,19 @@ public class DrawPlayer implements Serializable {
 
     private String playerIp;
 
+    private int port;
+
     /**
      * DrawPlayer constructor, used to create a DrawPlayer from given parameters.
      *
      * @param name Player's nickname
      * @param ip Player's client IP address
+     * @param port Player's running port
      */
-    public DrawPlayer(String name, String ip) {
+    public DrawPlayer(String name, String ip, int port) {
         this.playerName = name;
         this.playerIp = ip;
+        this.port = port;
     }
 
     /**
@@ -42,6 +46,24 @@ public class DrawPlayer implements Serializable {
      */
     public String getName() {
         return this.playerName;
+    }
+
+    /**
+     * Get player's host ip
+     *
+     * @return Player's host ip
+     */
+    public String getIp() {
+        return this.playerIp;
+    }
+
+    /**
+     * Get player's running port, for development only
+     *
+     * @return Player's running port
+     */
+    public int getPort() {
+        return this.port;
     }
 
     @Override
